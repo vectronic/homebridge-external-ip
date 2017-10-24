@@ -4,7 +4,7 @@ var Service, Characteristic, detectedState, notDetectedState;
 var request = require('request');
 
 // Update UI immediately after sensor state change
-var updateUI = false;
+var updateUI = true;
 
 module.exports = function (homebridge) {
 
