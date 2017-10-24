@@ -11,7 +11,7 @@ Example config.json entry:
 ```
     "platforms": [
 		{
-			"platform": "ExternalIP",
+			"platform": "ExternalIp",
 			"sensor": 
 			{
                 "expectedIp": "x.x.x.x",

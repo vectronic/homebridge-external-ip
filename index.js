@@ -52,8 +52,9 @@ function ExternalIpContactAccessory(pkginfo, log, config) {
 
     this.expectedIp = config['expectedIp'] || '127.0.0.1';
     this.checkInterval = parseInt(config['interval']) || 300;
-    
-	// Initial state
+    this.name = 'External IP Sensor';
+
+    // Initial state
 	this.stateValue = notDetectedState;
 
 	this._service = new Service.ContactSensor('External IP Check');
