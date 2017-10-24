@@ -95,7 +95,7 @@ ExternalIpContactAccessory.prototype = {
 
         request('http://ipinfo.io/ip', function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                if (body == self.expectedIp) {
+                if (body.valueOf() == self.expectedIp) {
                     self.stateValue = detectedState;
                 }
                 else {
