@@ -14,7 +14,6 @@ Example config.json entry:
 			"platform": "ExternalIP",
 			"sensor": 
 			{
-                "name": "External IP",
                 "expectedIp": "x.x.x.x",
                 "interval": 120
             }

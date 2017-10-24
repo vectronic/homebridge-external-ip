@@ -18,5 +18,7 @@
 		"url": "git@github.com:vectronic/homebridge-external-ip.git"
 	},
 	"dependencies": {
+		"pkginfo": "^0.4.1",
+		"request": "^2.83.0"
 	}
 }

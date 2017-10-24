@@ -1,7 +1,7 @@
 "use strict";
 
 var Service, Characteristic, detectedState, notDetectedState;
-var ping = require('ping');
+var request = require('request');
 
 // Update UI immediately after sensor state change
 var updateUI = false;
@@ -11,39 +11,33 @@ module.exports = function(homebridge) {
 	// Service and Characteristic are from hap-nodejs
 	Service = homebridge.hap.Service;
 	Characteristic = homebridge.hap.Characteristic;
-	homebridge.registerPlatform('homebridge-ping-hosts', 'PingHosts', PingHostsPlatform);
-	homebridge.registerAccessory('homebridge-ping-hosts', 'PingHostsContact', PingHostsContactAccessory);
+	homebridge.registerPlatform('homebridge-external-ip', 'ExternalIp', ExternalIpPlatform);
+	homebridge.registerAccessory('homebridge-external-ip', 'ExternalIpContact', ExternalIpContactAccessory);
     
 	detectedState = Characteristic.ContactSensorState.CONTACT_DETECTED; // Closed
 	notDetectedState = Characteristic.ContactSensorState.CONTACT_NOT_DETECTED; // Open
 
 };
 
-function PingHostsPlatform(log, config) {
+function ExternalIpPlatform(log, config) {
 
 	this.log = log;
     
-    this.sensors = config['sensors'] || [];
+    this.sensor = config['sensor'] || {};
     
     // Allow retrieval of data from package.json
 	this.pkginfo = require('pkginfo')(module);
 
 }
 
-PingHostsPlatform.prototype = {
+ExternalIpPlatform.prototype = {
 
     accessories: function(callback) {
 
         var accessories = [];
 
-        for (var i = 0; i < this.sensors.length; i++) {
-            var sensorAccessory = new PingHostsContactAccessory(this.pkginfo, this.log, this.sensors[i]);
-            accessories.push(sensorAccessory);
-        }
-
-        var accessoriesCount = accessories.length;
-        
-        this.log(callback);
+		var sensorAccessory = new ExternalIpContactAccessory(this.pkginfo, this.log, this.sensor);
+		accessories.push(sensorAccessory);
 
         callback(accessories);
 
@@ -51,20 +45,18 @@ PingHostsPlatform.prototype = {
     
 }
 
-function PingHostsContactAccessory(pkginfo, log, config) {
+function ExternalIpContactAccessory(pkginfo, log, config) {
 
     this.log = log;
     this.pkginfo = pkginfo;
 
-    this.id = config['id'];
-    this.name = config['name'] || 'Host Ping Sensor';
-    this.host = config['host'] || 'localhost';
-    this.pingInterval = parseInt(config['interval']) || 300;
+    this.expectedIp = config['expectedIp'] || '127.0.0.1';
+    this.checkInterval = parseInt(config['interval']) || 300;
     
 	// Initial state
-	this.stateValue = detectedState;
+	this.stateValue = notDetectedState;
 
-	this._service = new Service.ContactSensor(this.name);
+	this._service = new Service.ContactSensor('External IP Check');
 	
 	// Default state is open, we want it to be closed
 	this._service.getCharacteristic(Characteristic.ContactSensorState)
@@ -88,37 +80,38 @@ function PingHostsContactAccessory(pkginfo, log, config) {
 		
 	}).bind(this);
 
-	this.doPing();
-	setInterval(this.doPing.bind(this), this.pingInterval * 1000);
+	this.doIpCheck();
+	setInterval(this.doIpCheck.bind(this), this.checkInterval * 1000);
 
 }
 
-PingHostsContactAccessory.prototype = {
+ExternalIpContactAccessory.prototype = {
 
-	doPing: function() {
+	doIpCheck: function() {
 		
 		var self = this;
 		var lastState = self.stateValue;
 
-		ping.promise.probe(self.host)
-			.then(function (res, err) {
-				
-				if (err) {
-					self.log(err);
-					self.stateValue = notDetectedState;
-					self.setStatusFault(1);
-				} else {
-					self.stateValue = res.alive ? notDetectedState : detectedState;
-					self.setStatusFault(0);
-					if (! self.stateValue) {
-						self.log('[' + self.name + '] Ping result for ' + self.host + ' was ' + self.stateValue);
-					}
-				}
-				// Notify of state change, if applicable
-				if (self.stateValue != lastState) self.changeHandler(self.stateValue);
-	
-			});
-
+        request('http://ipinfo.io/ip', function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                if (body == self.expectedIp) {
+                    self.stateValue = detectedState;
+                }
+                else {
+                    self.log("expected: " + self.expectedIp + " != actual: " + body);
+                    self.stateValue = notDetectedState;
+                }
+                self.setStatusFault(0);
+            }
+            else {
+                self.log("Error from http://ipinfo.io/ip -> " + response.statusCode)
+                self.stateValue = notDetectedState;
+                self.setStatusFault(1);
+            }
+            if (self.stateValue != lastState) {
+                self.changeHandler(self.stateValue);
+            }
+        })
 	},
 	
 	setStatusFault: function(value) {
@@ -147,8 +140,8 @@ PingHostsContactAccessory.prototype = {
 
 		// Set plugin information
 		informationService
-			.setCharacteristic(Characteristic.Manufacturer, 'jsWorks')
-			.setCharacteristic(Characteristic.Model, 'Ping State Sensor')
+			.setCharacteristic(Characteristic.Manufacturer, 'vectronic')
+			.setCharacteristic(Characteristic.Model, 'External IP Contact Sensor')
 			.setCharacteristic(Characteristic.SerialNumber, 'Version ' + module.exports.version);
 
 		return [informationService, this._service];
