@@ -83,7 +83,6 @@ function ExternalIpContactAccessory(pkginfo, log, config) {
 
     this.doIpCheck();
     setInterval(this.doIpCheck.bind(this), this.checkInterval * 1000);
-
 }
 
 ExternalIpContactAccessory.prototype = {
@@ -105,7 +104,8 @@ ExternalIpContactAccessory.prototype = {
                 self.setStatusFault(0);
             }
             else {
-                self.log("Error from http://ipinfo.io/ip -> " + response.statusCode)
+                self.log("Error from http://ipinfo.io/ip -> ")
+                self.log(error);
                 self.stateValue = notDetectedState;
                 self.setStatusFault(1);
             }
@@ -118,21 +118,18 @@ ExternalIpContactAccessory.prototype = {
     setStatusFault: function (value) {
 
         this._service.setCharacteristic(Characteristic.StatusFault, value);
-
     },
 
     identify: function (callback) {
 
         this.log('[' + this.name + '] Identify sensor requested');
         callback();
-
     },
 
     getState: function (callback) {
 
         this.log('[' + this.name + '] Getting sensor state, which is currently ' + this.stateValue);
         callback(null, this.stateValue);
-
     },
 
     getServices: function () {
@@ -146,7 +143,5 @@ ExternalIpContactAccessory.prototype = {
             .setCharacteristic(Characteristic.SerialNumber, 'Version ' + module.exports.version);
 
         return [informationService, this._service];
-
     }
-
 };
