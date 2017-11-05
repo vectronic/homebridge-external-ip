@@ -24,34 +24,27 @@ function ExternalIpPlatform(log, config) {
     this.log = log;
 
     this.sensor = config['sensor'] || {};
-
-    // Allow retrieval of data from package.json
-    this.pkginfo = require('pkginfo')(module);
-
 }
 
-ExternalIpPlatform.prototype = {
+ExternalIpPlatform.prototype.accessories = function (callback) {
 
-    accessories: function (callback) {
+    var accessories = [];
 
-        var accessories = [];
+    accessories.push(new ExternalIpContactAccessory(this.log, this.sensor));
 
-        var sensorAccessory = new ExternalIpContactAccessory(this.pkginfo, this.log, this.sensor);
-        accessories.push(sensorAccessory);
+    callback(accessories);
+};
 
-        callback(accessories);
-
-    }
-
-}
-
-function ExternalIpContactAccessory(pkginfo, log, config) {
+function ExternalIpContactAccessory(log, config) {
 
     this.log = log;
-    this.pkginfo = pkginfo;
 
-    this.expectedIp = config['expectedIp'] || '127.0.0.1';
-    this.checkInterval = parseInt(config['interval']) || 300;
+    this.expectedIp = config['expectedIp'];
+
+    if (!this.expectedIp) {
+        throw new Error("Missing expectedIp!");
+    }
+
     this.name = 'External IP Sensor';
 
     // Initial state
@@ -60,88 +53,84 @@ function ExternalIpContactAccessory(pkginfo, log, config) {
     this._service = new Service.ContactSensor('External IP Check');
 
     // Default state is open, we want it to be closed
-    this._service.getCharacteristic(Characteristic.ContactSensorState)
+    this._service
+        .getCharacteristic(Characteristic.ContactSensorState)
         .setValue(this.stateValue);
 
     this._service
         .getCharacteristic(Characteristic.ContactSensorState)
         .on('get', this.getState.bind(this));
 
-    this._service.addCharacteristic(Characteristic.StatusFault);
+    this._service
+        .addCharacteristic(Characteristic.StatusFault);
 
     this.changeHandler = (function (newState) {
 
         this.log('[' + this.name + '] Setting sensor state set to ' + newState);
-        this._service.getCharacteristic(Characteristic.ContactSensorState)
+        this._service
+            .getCharacteristic(Characteristic.ContactSensorState)
             .setValue(newState ? detectedState : notDetectedState);
 
-        if (updateUI)
-            this._service.getCharacteristic(Characteristic.ContactSensorState)
+        if (updateUI) {
+            this._service
+                .getCharacteristic(Characteristic.ContactSensorState)
                 .getValue();
+        }
 
     }).bind(this);
 
     this.doIpCheck();
-    setInterval(this.doIpCheck.bind(this), this.checkInterval * 1000);
+    setInterval(this.doIpCheck.bind(this), (parseInt(config['interval']) || 300) * 1000);
 }
 
-ExternalIpContactAccessory.prototype = {
+ExternalIpContactAccessory.prototype.doIpCheck = function () {
 
-    doIpCheck: function () {
+    var self = this;
+    var lastState = self.stateValue;
 
-        var self = this;
-        var lastState = self.stateValue;
-
-        request('http://ipinfo.io/ip', function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                if (body.trim().valueOf() === self.expectedIp.trim().valueOf()) {
-                    self.stateValue = detectedState;
-                }
-                else {
-                    self.log("expected: [" + self.expectedIp + "] != actual: [" + body + "]");
-                    self.stateValue = notDetectedState;
-                }
-                self.setStatusFault(0);
+    request('http://ipinfo.io/ip', function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            if (body.trim().valueOf() === self.expectedIp.trim().valueOf()) {
+                self.stateValue = detectedState;
             }
             else {
-                self.log("Error from http://ipinfo.io/ip -> ")
-                self.log(error);
+                self.log("expected: [" + self.expectedIp + "] != actual: [" + body + "]");
                 self.stateValue = notDetectedState;
-                self.setStatusFault(1);
             }
-            if (self.stateValue !== lastState) {
-                self.changeHandler(self.stateValue);
-            }
-        })
-    },
+            self.setStatusFault(0);
+        }
+        else {
+            self.log("Error from http://ipinfo.io/ip -> ");
+            self.log(error);
+            self.stateValue = notDetectedState;
+            self.setStatusFault(1);
+        }
+        if (self.stateValue !== lastState) {
+            self.changeHandler(self.stateValue);
+        }
+    })
+};
 
-    setStatusFault: function (value) {
+ExternalIpContactAccessory.prototype.setStatusFault = function (value) {
 
-        this._service.setCharacteristic(Characteristic.StatusFault, value);
-    },
+    this._service.setCharacteristic(Characteristic.StatusFault, value);
+};
 
-    identify: function (callback) {
+ExternalIpContactAccessory.prototype.getState = function (callback) {
 
-        this.log('[' + this.name + '] Identify sensor requested');
-        callback();
-    },
+    this.log('[' + this.name + '] Sensor state: ' + this.stateValue);
+    callback(null, this.stateValue);
+};
 
-    getState: function (callback) {
+ExternalIpContactAccessory.prototype.getServices = function () {
 
-        this.log('[' + this.name + '] Getting sensor state, which is currently ' + this.stateValue);
-        callback(null, this.stateValue);
-    },
+    var informationService = new Service.AccessoryInformation();
 
-    getServices: function () {
+    // Set plugin information
+    informationService
+        .setCharacteristic(Characteristic.Manufacturer, 'vectronic')
+        .setCharacteristic(Characteristic.Model, 'External IP Contact Sensor')
+        .setCharacteristic(Characteristic.SerialNumber, '');
 
-        var informationService = new Service.AccessoryInformation();
-
-        // Set plugin information
-        informationService
-            .setCharacteristic(Characteristic.Manufacturer, 'vectronic')
-            .setCharacteristic(Characteristic.Model, 'External IP Contact Sensor')
-            .setCharacteristic(Characteristic.SerialNumber, 'Version ' + module.exports.version);
-
-        return [informationService, this._service];
-    }
+    return [informationService, this._service];
 };
