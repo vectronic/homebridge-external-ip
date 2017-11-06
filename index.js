@@ -1,7 +1,7 @@
 "use strict";
 
 var Service, Characteristic, detectedState, notDetectedState;
-var request = require('request');
+var request = require('requestretry');
 
 // Update UI immediately after sensor state change
 var updateUI = true;
