@@ -47,12 +47,10 @@ function ExternalIpContactAccessory(log, config) {
 
     this.name = 'External IP Sensor';
 
-    // Initial state
-    this.stateValue = detectedState;
-
     this._service = new Service.ContactSensor('External IP Check');
 
-    // Default state is open, we want it to be closed
+    // Default state is closed, we will detect if it changes
+    this.stateValue = detectedState;
     this._service
         .getCharacteristic(Characteristic.ContactSensorState)
         .setValue(this.stateValue);
