@@ -91,7 +91,7 @@ ExternalIpContactAccessory.prototype.doIpCheck = function () {
                 self.stateValue = detectedState;
             }
             else {
-                self.log("expected: [" + self.expectedIp + "] != actual: [" + body + "]");
+                self.log("expected: [" + self.expectedIp + "] != actual: [" + body.trim() + "]");
                 self.stateValue = notDetectedState;
             }
         }
