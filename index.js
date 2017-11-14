@@ -95,6 +95,10 @@ ExternalIpContactAccessory.prototype.doIpCheck = function () {
                 self.stateValue = notDetectedState;
             }
         }
+        else if (!error) {
+            self.log("Error response http://ipinfo.io/ip -> " + response.statusCode);
+            self.stateValue = notDetectedState;
+        }
         else {
             self.log("Error from http://ipinfo.io/ip -> ");
             self.log(error);
