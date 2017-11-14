@@ -3,9 +3,6 @@
 var Service, Characteristic, detectedState, notDetectedState;
 var request = require('requestretry');
 
-// Update UI immediately after sensor state change
-var updateUI = true;
-
 module.exports = function (homebridge) {
 
     // Service and Characteristic are from hap-nodejs
@@ -65,12 +62,6 @@ function ExternalIpContactAccessory(log, config) {
         this._service
             .getCharacteristic(Characteristic.ContactSensorState)
             .setValue(newState ? detectedState : notDetectedState);
-
-        if (updateUI) {
-            this._service
-                .getCharacteristic(Characteristic.ContactSensorState)
-                .getValue();
-        }
 
     }).bind(this);
 
