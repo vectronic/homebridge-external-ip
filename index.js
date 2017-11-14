@@ -62,6 +62,9 @@ function ExternalIpContactAccessory(log, config) {
         this._service
             .getCharacteristic(Characteristic.ContactSensorState)
             .setValue(newState ? detectedState : notDetectedState);
+        this._service
+            .getCharacteristic(Characteristic.ContactSensorState)
+            .getValue();
 
     }).bind(this);
 
