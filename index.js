@@ -48,7 +48,7 @@ function ExternalIpContactAccessory(log, config) {
     this.name = 'External IP Sensor';
 
     // Initial state
-    this.stateValue = notDetectedState;
+    this.stateValue = detectedState;
 
     this._service = new Service.ContactSensor('External IP Check');
 
@@ -76,7 +76,6 @@ function ExternalIpContactAccessory(log, config) {
 
     }).bind(this);
 
-    this.doIpCheck();
     setInterval(this.doIpCheck.bind(this), (parseInt(config['interval']) || 300) * 1000);
 }
 
