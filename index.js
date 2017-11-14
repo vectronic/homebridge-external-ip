@@ -61,9 +61,6 @@ function ExternalIpContactAccessory(log, config) {
         .getCharacteristic(Characteristic.ContactSensorState)
         .on('get', this.getState.bind(this));
 
-    this._service
-        .addCharacteristic(Characteristic.StatusFault);
-
     this.changeHandler = (function (newState) {
 
         this.log('[' + this.name + '] Setting sensor state set to ' + newState);
@@ -97,23 +94,16 @@ ExternalIpContactAccessory.prototype.doIpCheck = function () {
                 self.log("expected: [" + self.expectedIp + "] != actual: [" + body + "]");
                 self.stateValue = notDetectedState;
             }
-            self.setStatusFault(0);
         }
         else {
             self.log("Error from http://ipinfo.io/ip -> ");
             self.log(error);
             self.stateValue = notDetectedState;
-            self.setStatusFault(1);
         }
         if (self.stateValue !== lastState) {
             self.changeHandler(self.stateValue);
         }
     })
-};
-
-ExternalIpContactAccessory.prototype.setStatusFault = function (value) {
-
-    this._service.setCharacteristic(Characteristic.StatusFault, value);
 };
 
 ExternalIpContactAccessory.prototype.getState = function (callback) {
