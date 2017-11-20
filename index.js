@@ -19,7 +19,7 @@ function ExternalIpPlatform(log, config) {
 }
 
 
-ExternalIpPlatform.prototype.accessories = function (callback) {
+PingHostsPlatform.prototype.accessories = function (callback) {
     var accessories = [];
     accessories.push(new ExternalIpContactAccessory(this.log, this.config));
     callback(accessories);
@@ -34,6 +34,7 @@ function ExternalIpContactAccessory(log, config) {
     if (!this.expectedIp) {
         throw new Error("Missing expectedIp!");
     }
+    this.name = 'External IP';
 
     this.services = {
         AccessoryInformation: new Service.AccessoryInformation(),
