@@ -1,6 +1,6 @@
 "use strict";
 
-var request = require('requestretry');
+var request = require("requestretry");
 var Service, Characteristic;
 
 
@@ -9,7 +9,7 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
 
-    homebridge.registerPlatform('homebridge-external-ip', 'ExternalIp', ExternalIpPlatform);
+    homebridge.registerPlatform("homebridge-external-ip", "ExternalIp", ExternalIpPlatform);
 };
 
 
@@ -30,7 +30,7 @@ function ExternalIpContactAccessory(log, config) {
 
     this.log = log;
 
-    this.expectedIp = config['expectedIp'];
+    this.expectedIp = config["expectedIp"];
     if (!this.expectedIp) {
         throw new Error("Missing expectedIp!");
     }
@@ -41,15 +41,15 @@ function ExternalIpContactAccessory(log, config) {
     };
 
     this.services.AccessoryInformation
-        .setCharacteristic(Characteristic.Manufacturer, 'vectronic');
+        .setCharacteristic(Characteristic.Manufacturer, "vectronic");
     this.services.AccessoryInformation
-        .setCharacteristic(Characteristic.Model, 'External IP Check');
+        .setCharacteristic(Characteristic.Model, "External IP Check");
 
     this.services.ContactSensor
         .getCharacteristic(Characteristic.ContactSensorState)
         .setValue(Characteristic.ContactSensorState.CONTACT_DETECTED);
 
-    setInterval(this.doIpCheck.bind(this), (config['interval'] || 60) * 1000);
+    setInterval(this.doIpCheck.bind(this), (config["interval"] || 60) * 1000);
 }
 
 
@@ -57,7 +57,7 @@ ExternalIpContactAccessory.prototype.doIpCheck = function () {
 
     var self = this;
 
-    request('http://ipinfo.io/ip', function (error, response, body) {
+    request("http://ipinfo.io/ip", function (error, response, body) {
 
         var state = Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
 
@@ -84,6 +84,5 @@ ExternalIpContactAccessory.prototype.doIpCheck = function () {
 
 
 ExternalIpContactAccessory.prototype.getServices = function () {
-
     return [this.services.AccessoryInformation, this.services.ContactSensor];
 };
