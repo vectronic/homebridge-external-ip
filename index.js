@@ -19,7 +19,7 @@ function ExternalIpPlatform(log, config) {
 }
 
 
-PingHostsPlatform.prototype.accessories = function (callback) {
+ExternalIpPlatform.prototype.accessories = function (callback) {
     var accessories = [];
     accessories.push(new ExternalIpContactAccessory(this.log, this.config));
     callback(accessories);
