@@ -12,11 +12,8 @@ Example config.json entry:
     "platforms": [
 		{
 			"platform": "ExternalIp",
-			"sensor": 
-			{
-                "expectedIp": "x.x.x.x",
-                "interval": 120
-            }
+            "expectedIp": "x.x.x.x",
+            "interval": 120
 		}
 	]
 ```
