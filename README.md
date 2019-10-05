@@ -10,13 +10,13 @@
 Example `config.json` entry:
 
 ```
-    "platforms": [
-		{
-			"platform": "ExternalIp",
-            "expectedIp": "x.x.x.x",
-            "interval": 120
-		}
-	]
+"platforms": [
+    {
+        "platform": "ExternalIp",
+        "expectedIp": "x.x.x.x",
+        "interval": 120
+    }
+]
 ```
 Where:
 
