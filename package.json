@@ -1,7 +1,7 @@
 {
 	"name": "homebridge-external-ip",
 	"version": "1.0.0",
-	"description": "A Homebridge (https://github.com/nfarina/homebridge) plugin exposing a contact sensor state based on external IP",
+	"description": "A Homebridge plugin exposing a contact sensor state based on external IP",
 	"main": "index.js",
 	"license": "MIT",
 	"keywords": [
