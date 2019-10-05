@@ -1,7 +1,7 @@
 # homebridge-external-ip
 > A [Homebridge](https://github.com/nfarina/homebridge) plugin exposing a contact sensor state based on external IP
 
-># Installation
+# Installation
 1. Install homebridge using: `npm install -g homebridge`
 2. Install this plugin: `npm install -g homebridge-external-ip`
 3. Update your `config.json` configuration file
