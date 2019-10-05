@@ -1,21 +1,22 @@
 {
 	"name": "homebridge-external-ip",
 	"version": "1.0.0",
-	"description": "Contact sensor plugin checking external IP for homebridge (https://github.com/nfarina/homebridge)",
-	"license": "ISC",
+	"description": "A Homebridge (https://github.com/nfarina/homebridge) plugin exposing a contact sensor state based on external IP",
+	"main": "index.js",
+	"license": "MIT",
 	"keywords": [
 		"homebridge-plugin"
 	],
 	"engines": {
-		"node": ">=4.3.2",
-		"homebridge": ">=0.4.0"
+		"homebridge": ">=0.4.46"
 	},
-	"author": {
-		"name": "vectronic"
-	},
+	"author": "vectronic",
 	"repository": {
 		"type": "git",
 		"url": "git@github.com:vectronic/homebridge-external-ip.git"
+	},
+	"bugs": {
+		"url": "https://github.com/vectronic/homebridge-external-ip/issues"
 	},
 	"dependencies": {
 		"requestretry": "^1.12.2"
