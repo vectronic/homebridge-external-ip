@@ -19,6 +19,6 @@
 		"url": "https://github.com/vectronic/homebridge-external-ip/issues"
 	},
 	"dependencies": {
-		"requestretry": "^1.12.2"
+		"requestretry": "^7.0.0"
 	}
 }
