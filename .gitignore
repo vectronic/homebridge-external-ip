@@ -1,5 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-.gitignore
 .idea/
-homebridge-external-ip.iml
 node_modules/
+dist/
+*.tgz

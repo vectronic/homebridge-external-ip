@@ -1,0 +1,31 @@
+{
+  "pluginAlias": "ExternalIp",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "required": [
+      "expectedIp"
+    ],
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "External IP"
+      },
+      "expectedIp": {
+        "title": "Expected IP",
+        "type": "string",
+        "description": "The expected external IP address. Contact sensor shows 'detected' when current external IP matches this value.",
+        "format": "ipv4"
+      },
+      "interval": {
+        "title": "Polling Interval",
+        "type": "integer",
+        "default": 60,
+        "minimum": 10,
+        "description": "Polling interval in seconds to check the current external IP."
+      }
+    }
+  }
+}
